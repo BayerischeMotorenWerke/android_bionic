@@ -72,6 +72,19 @@ double fmin(double x, double y) { return __builtin_fmin(x, y); }
 float nearbyintf(float x) { return __builtin_nearbyintf(x); }
 double nearbyint(double x) { return __builtin_nearbyint(x); }
 
+// msun s_nearbyint.c defines all floating-point version, so we need to
+// redefine the long double one here. For aarch64, clang/compiler-rt
+// soft-float routines does not use single/double floating-point operation,
+// so it should be safe to call rintl directly.
+long double nearbyintl(long double x) {
+    volatile long double ret;
+    fenv_t env;
+    fegetenv(&env);
+    ret = rintl(x);
+    fesetenv(&env);
+    return (ret);
+}
+
 float rintf(float x) { return __builtin_rintf(x); }
 double rint(double x) { return __builtin_rint(x); }
 
